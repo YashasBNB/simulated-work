@@ -217,6 +217,23 @@ If sign-in reports **"Backend unreachable"**, the frontend is fine and port 8000
 has nothing listening. Check the backend terminal for a `ModuleNotFoundError`
 and confirm with `curl localhost:8000/health`.
 
+**Persistent local setup on this machine** (avoids reinstalling on reboot;
+nothing inside the repo):
+- Backend venv: `~/.venvs/sim-work-backend` (requirements plus the two missing
+  packages already installed). Restart with:
+  ```bash
+  cd backend && PYTHONPATH=. \
+    DATABASE_URL="sqlite:///$HOME/.local/share/sim-work/outage.db" \
+    UPLOAD_DIR="$HOME/.local/share/sim-work/uploads" \
+    ~/.venvs/sim-work-backend/bin/python -m uvicorn app.main:app --port 8000
+  ```
+- Backend data and logs live in `~/.local/share/sim-work/` (`outage.db`,
+  `uploads/`, `backend.log`), so the repo never gains stray `.db` files and a
+  `/tmp` cleanup cannot break a running instance. The `DATABASE_URL`/`UPLOAD_DIR`
+  overrides are read by `backend/app/config.py` from the environment; the repo
+  defaults are unchanged.
+- Frontend: `cd frontend && npm run dev` (port 5173).
+
 Checks:
 
 ```bash
